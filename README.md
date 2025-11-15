@@ -1,9 +1,12 @@
-USER OSC for the Korg Minlogue XD. 🎹 
-Testing ChatGPT to make a User Osc for me and see how it fares. 🤞 
+HYPERSAWX - Based on the JP-8000 SuperSaw waveform. 🐈
 
-Based on the JP-8000 SuperSaw waveform. 🐈 
+USER OSC for the Korg Minlogue XD. 🎹
+
+Testing ChatGPT to make a User Osc for me and see how it fares. 🤞
+
 But with a twist permitting it to be even bigger than a standard JP-8000 supersaw. ⭐
 
+----------------------------------------------------------------------
 | Synth Control            | Function                                |
 | ------------------------ | --------------------------------------- |
 | **Shape knob**           | Supersaw Detune                         |
