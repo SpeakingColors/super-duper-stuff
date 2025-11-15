@@ -36,3 +36,6 @@ Notes:
 - **DETUNE**: Use the top-left SHAPE knob next to the oscillator selector.
 - **TONE / SUB / DRIFT / VIBR**: Use [EDIT] → [OSC EDIT] → VALUE knob to tweak these parameters.
 - **VIBR (Vibrato)**: LFO synced to tempo (affects pitch subtly per note).
+
+  <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/ab4b0378-675e-4089-9112-47f172428d01" />
+
