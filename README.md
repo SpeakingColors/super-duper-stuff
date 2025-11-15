@@ -1,8 +1,8 @@
-USER OSC for the Korg Minlogue XD.
-Testing ChatGPT to make a User Osc for me and see how it fares.
+USER OSC for the Korg Minlogue XD. 🎹
+Testing ChatGPT to make a User Osc for me and see how it fares. 🤞
 
-Based on the JP-8000 SuperSaw waveform.
-But with a twist permitting it to be even bigger than a standard JP-8000 supersaw.
+Based on the JP-8000 SuperSaw waveform. 🐈
+But with a twist permitting it to be even bigger than a standard JP-8000 supersaw. ⭐
 
 | Synth Control            | Function                                |
 | ------------------------ | --------------------------------------- |
