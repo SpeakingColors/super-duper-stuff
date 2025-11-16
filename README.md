@@ -4,7 +4,7 @@
 
 Testing ChatGPT to make a User Osc for me and see how it fares. 🤞
 
-But with a twist permitting it to be even bigger than a standard JP-8000 supersaw. ⭐
+But with a twist, 15 supersaw with 7 voices, a sub OSC for thickness, parameters edits, permitting it to be even bigger than a standard JP-8000 supersaw. ⭐
 
 It's not working yet and cannot figure out why. If anyone is able to figure it out, feel free to help.
 
