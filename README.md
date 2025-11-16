@@ -6,6 +6,12 @@ Testing ChatGPT to make a User Osc for me and see how it fares. 🤞
 
 But with a twist permitting it to be even bigger than a standard JP-8000 supersaw. ⭐
 
+It's not working yet and cannot figure out why. If anyone is able to figure it out, feel free to help.
+
+The goal is for this UserOsc to be available for free.
+
+Ideally we want a working build, and upload the UserOsc here, ready to be downloaded by anyone and uploaded to their XD, NTS1 or Prologue.
+
 ----------------------------------------------------------------------
 | Synth Control            | Function                                |
 | ------------------------ | --------------------------------------- |
