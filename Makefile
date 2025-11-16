@@ -8,7 +8,7 @@ PROJECTDIR ?= $(abspath .)
 
 INSTALLDIR ?= $(PROJECTDIR)
 
-TOOLSDIR ?= $(PLATFORMDIR)"C:\Program Files (x86)\GNU Arm Embedded Toolchain\"
+TOOLSDIR ?= $(PLATFORMDIR)/../../tools
 
 EXTDIR ?= $(PLATFORMDIR)/../ext
 
@@ -34,7 +34,7 @@ MCU := cortex-m4
 MCU_MODEL := STM32F401xC
 
 GCC_TARGET := arm-none-eabi-
-GCC_BIN_PATH ?= $(TOOLSDIR)\10 2021.10\bin
+GCC_BIN_PATH ?= $(TOOLSDIR)/gcc/gcc-arm-none-eabi-5_4-2016q3/bin
 
 CC   := $(GCC_BIN_PATH)/$(GCC_TARGET)gcc
 CXXC := $(GCC_BIN_PATH)/$(GCC_TARGET)g++
