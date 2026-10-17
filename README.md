@@ -1,47 +1,54 @@
-**HYPERSAWX** - Based on the **JP-8000 SuperSaw waveform**. 🐈
+# HYPERSAWX 🐈
 
-**USER OSC** for the **Korg Minlogue XD**. 🎹
+A JP-8000 style SuperSaw user oscillator for the **KORG minilogue xd**, free to use.
 
-Testing ChatGPT to make a User Osc for me and see how it fares. 🤞
+15 detuned saws, a sub oscillator, analog-style drift and vibrato.
 
-But with a twist, 15 supersaw with 7 voices, a sub OSC for thickness, parameters edits, permitting it to be even bigger than a standard JP-8000 supersaw. ⭐
+It works now: the old ChatGPT version had several bugs (stereo writes into a mono buffer, a broken `_unit.c`, wrong manifest, no sources in the build). This version is a clean rewrite.
 
-It's not working yet and cannot figure out why. If anyone is able to figure it out, feel free to help.
+## Download and install
 
-The goal is for this UserOsc to be available for free.
+1. Download `dist/HyperSawX.mnlgxdunit`.
+2. Open KORG **minilogue xd Sound Librarian**, connect the xd over USB.
+3. Drag the file into a free **User Oscillator** slot, then send it to the synth.
+4. On the xd: set **Multi Engine** to **USR** and pick **HyperSawX**.
 
-Ideally we want a working build, and upload the UserOsc here, ready to be downloaded by anyone and uploaded to their XD, NTS1 or Prologue.
+## Controls
 
-----------------------------------------------------------------------
-| Synth Control            | Function                                |
-| ------------------------ | --------------------------------------- |
-| **Shape knob**           | Supersaw Detune                         |
-| **Shape Mod (Mod knob)** | Tone Tilt                               |
-| **Menu Param 1 (P1)**    | Sub Level                               |
-| **Menu Param 2 (P2)**    | Drift Amount                            |
-| **Menu Param 3 (P3)**    | Vibrato Depth                           |
-| **Menu Param 4 (P4)**    | Vibrato Speed (Tempo Synced internally) |
+| Control | Function |
+| --- | --- |
+| **SHAPE** | Detune amount (JP-8000 curve) |
+| **SHIFT + SHAPE** | Tone tilt (dark to bright) |
+| **P1 Sub** | Sub oscillator, one octave down |
+| **P2 Drift** | Slow random pitch drift per voice |
+| **P3 Vib Depth** | Vibrato depth |
+| **P4 Vib Rate** | Vibrato speed, 0.5 to 8 Hz (free running, not tempo synced; the SDK gives no tempo) |
 
-✅ **How to interpret**:
+Tip: lower **Multi Engine level** a little if you stack it with VCO 1 and 2.
 
-- The physical SHAPE knob always maps to DETUNE.
+## Listen
 
-**The OSC EDIT menu shows P1–P4:**
+`audio/hypersawx_demo.wav` is a short riff rendered from this exact source.
 
-- P1 = TONE → Tone tilt / filter-like brightness
+## Build it yourself
 
-- P2 = SUB → Sub oscillator mix
+Needs the [KORG logue-sdk](https://github.com/korginc/logue-sdk) and arm-none-eabi-gcc.
 
-- P3 = DRIFT → Random unison drift
+```
+git clone --recursive https://github.com/korginc/logue-sdk
+cp -r . logue-sdk/platform/minilogue-xd/hypersawx
+cd logue-sdk/platform/minilogue-xd/hypersawx
+make GCC_BIN_PATH=/path/to/arm-none-eabi/bin install
+```
 
-- P4 = VIBR → Tempo-synced vibrato depth
+## Related
 
-You can adjust these in real-time with the VALUE knob while in OSC EDIT.
+- [hypersaw-xd](https://github.com/SpeakingColors/hypersaw-xd): HyperSaw oscillator
+- [sawwiden-xd](https://github.com/SpeakingColors/sawwiden-xd): stereo widener mod FX
+- [MegaSaw-XD](https://github.com/SpeakingColors/MegaSaw-XD): 2 layer SuperSaw (coming)
 
-Notes:
-- **DETUNE**: Use the top-left SHAPE knob next to the oscillator selector.
-- **TONE / SUB / DRIFT / VIBR**: Use [EDIT] → [OSC EDIT] → VALUE knob to tweak these parameters.
-- **VIBR (Vibrato)**: LFO synced to tempo (affects pitch subtly per note).
+## License
 
-  <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/ab4b0378-675e-4089-9112-47f172428d01" />
+MIT for `hypersawx.cpp`. Files in `tpl/` and `ld/` come from the KORG logue SDK (BSD-3-Clause).
 
+Not affiliated with or endorsed by KORG Inc. minilogue is a trademark of KORG Inc.

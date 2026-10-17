@@ -33,7 +33,7 @@
 
 /**
  * @file    _unit.c
- * @brief   HyperSawX
+ * @brief   Oscillator entry template.
  *
  * @addtogroup api
  * @{
@@ -41,115 +41,127 @@
 
 #include "userosc.h"
 
-#define NUM_VOICES 7
-#define TOTAL_OSC (NUM_VOICES * 2 + 1)
-#define TWO_PI 6.28318530718f
+/*===========================================================================*/
+/* Externs and Types.                                                        */
+/*===========================================================================*/
 
-typedef struct State {
-  float phase[TOTAL_OSC + 1];     // +1 = sub oscillator
-  float drift_phase[TOTAL_OSC];
-  float detune, tone, submix, driftdepth;
-  float det_factors[TOTAL_OSC];
-  float panL[TOTAL_OSC];
-  float panR[TOTAL_OSC];
-} State;
+/**
+ * @name   Externs and Types.
+ * @{
+ */
 
-static State s;
+extern uint8_t _bss_start;
+extern uint8_t _bss_end;
 
-void OSC_INIT(uint32_t platform, uint32_t api) {
-  for (int i = 0; i < TOTAL_OSC + 1; i++) {
-    s.phase[i] = (float)rand() / (float)RAND_MAX;
-    if (i < TOTAL_OSC)
-      s.drift_phase[i] = (float)rand() / (float)RAND_MAX;
+extern void (*__init_array_start []) (void);
+extern void (*__init_array_end []) (void);
+
+typedef void (*__init_fptr)(void);
+
+/** @} */
+
+/*===========================================================================*/
+/* Locals Constants and Vars.                                                */
+/*===========================================================================*/
+
+/**
+ * @name   Local Constants and Vars.
+ * @{
+ */
+
+__attribute__((used, section(".hooks")))
+static const user_osc_hook_table_t s_hook_table = {
+  .magic = {'U','O','S','C'},
+  .api = USER_API_VERSION,
+  .platform = USER_TARGET_PLATFORM>>8,
+  .reserved0 = {0},
+  .func_entry = _entry,
+  .func_cycle = _hook_cycle,
+  .func_on = _hook_on,
+  .func_off = _hook_off,
+  .func_mute = _hook_mute,
+  .func_value = _hook_value,
+  .func_param = _hook_param,
+  .reserved1 = {0}
+};
+
+/** @} */
+
+/*===========================================================================*/
+/* Default Hooks.                                                             */
+/*===========================================================================*/
+
+/**
+ * @name   Default Hooks.
+ * @{
+ */
+
+__attribute__((used))
+void _entry(uint32_t platform, uint32_t api)
+{
+  // Ensure zero-clear BSS segment
+  uint8_t * __restrict bss_p = (uint8_t *)&_bss_start;
+  const uint8_t * const bss_e = (uint8_t *)&_bss_end;
+
+  for (; bss_p != bss_e;)
+    *(bss_p++) = 0;
+
+  // Call constructors if any.  
+  const size_t count = __init_array_end - __init_array_start;
+  for (size_t i = 0; i<count; ++i) {
+    __init_fptr init_p = (__init_fptr)__init_array_start[i];
+    if (init_p != NULL)
+      init_p();
   }
-
-  // Precompute stereo panning and detune multipliers
-  int idx = 0;
-  for (int i = 0; i < NUM_VOICES; i++)
-    s.det_factors[idx++] = -((float)(i + 1) / (float)NUM_VOICES); // below
-  s.det_factors[idx++] = 0.f;  // center
-  for (int i = 0; i < NUM_VOICES; i++)
-    s.det_factors[idx++] = ((float)(i + 1) / (float)NUM_VOICES);  // above
-
-  // Simple alternating pan law (0.2L to 0.8R spread)
-  for (int v = 0; v < TOTAL_OSC; v++) {
-    float p = (v % 2 == 0) ? 0.3f : 0.7f; // alternate
-    s.panL[v] = cosf(p * 1.5708f); // equal power
-    s.panR[v] = sinf(p * 1.5708f);
-  }
-
-  s.detune = 0.3f;
-  s.tone = 0.5f;
-  s.submix = 0.3f;
-  s.driftdepth = 0.3f;
+  
+  // Call user initialization
+  _hook_init(platform, api);
 }
 
-void OSC_CYCLE(const user_osc_param_t * const params, int32_t *yn, const uint32_t frames) {
-  const float base_w0 = osc_w0f_for_note(params->pitch);
-  const float det_amt = s.detune * 0.04f;
-  const float norm = 1.0f / TOTAL_OSC;
-  const float tone_gain = s.tone * 1.6f + 0.4f;
-  const float drift_speed = 0.00005f;
-  const float drift_scale = s.driftdepth * 0.01f;
-  const float submix = s.submix;
-
-  q31_t * __restrict y = (q31_t *)yn;
-
-  for (uint32_t i = 0; i < frames; i++) {
-    float sumL = 0.f, sumR = 0.f;
-
-    // unrolled main loop
-    for (int v = 0; v < TOTAL_OSC; v++) {
-      // per-voice drift
-      s.drift_phase[v] += drift_speed;
-      if (s.drift_phase[v] >= 1.f) s.drift_phase[v] -= 1.f;
-      float drift = sinf(TWO_PI * s.drift_phase[v]) * drift_scale;
-
-      // phase advance
-      s.phase[v] += base_w0 * (1.f + s.det_factors[v] * det_amt + drift);
-      s.phase[v] -= (uint32_t)s.phase[v];
-
-      float saw = (2.f * s.phase[v]) - 1.f;
-      saw *= tone_gain; // tone tilt via gain
-      saw = fmaxf(fminf(saw, 1.f), -1.f); // soft clip
-
-      sumL += saw * s.panL[v];
-      sumR += saw * s.panR[v];
-    }
-
-    // sub oscillator (octave down, mono)
-    s.phase[TOTAL_OSC] += base_w0 * 0.5f;
-    s.phase[TOTAL_OSC] -= (uint32_t)s.phase[TOTAL_OSC];
-    float sub = ((2.f * s.phase[TOTAL_OSC]) - 1.f) * submix;
-
-    float outL = (sumL * norm) + sub;
-    float outR = (sumR * norm) + sub;
-
-    // final soft limiter
-    outL = fmaxf(fminf(outL * 1.2f, 1.f), -1.f);
-    outR = fmaxf(fminf(outR * 1.2f, 1.f), -1.f);
-
-    *y++ = f32_to_q31(outL);
-    *y++ = f32_to_q31(outR);
-  }
+__attribute__((weak))
+void _hook_init(uint32_t platform, uint32_t api)
+{
+  (void)platform;
+  (void)api;
 }
 
-void OSC_NOTEON(const user_osc_param_t * const params) {
-  for (int i = 0; i < TOTAL_OSC + 1; i++) {
-    s.phase[i] = (float)rand() / (float)RAND_MAX;
-    if (i < TOTAL_OSC)
-      s.drift_phase[i] = (float)rand() / (float)RAND_MAX;
-  }
+__attribute__((weak))
+void _hook_cycle(const user_osc_param_t * const params, int32_t *yn, const uint32_t frames)
+{
+  (void)params;
+  (void)yn;
+  (void)frames;
 }
 
-void OSC_PARAM(uint16_t index, uint16_t value) {
-  switch (index) {
-    case k_user_osc_param_id1: s.detune = clipminmaxf(0.f, param_val_to_f32(value), 1.f); break;
-    case k_user_osc_param_id2: s.tone = clipminmaxf(0.f, param_val_to_f32(value), 1.f); break;
-    case k_user_osc_param_id3: s.submix = clipminmaxf(0.f, param_val_to_f32(value), 1.f); break;
-    case k_user_osc_param_id4: s.driftdepth = clipminmaxf(0.f, param_val_to_f32(value), 1.f); break;
-    default: break;
-  }
+__attribute__((weak))
+void _hook_on(const user_osc_param_t * const params)
+{
+  (void)params;
+}
+
+__attribute__((weak))
+void _hook_off(const user_osc_param_t * const params)
+{
+  (void)params;
+}
+
+__attribute__((weak))
+void _hook_mute(const user_osc_param_t * const params)
+{
+  (void)params;
+}
+
+__attribute__((weak))
+void _hook_value(uint16_t value)
+{
+  (void)value;
+}
+
+__attribute__((weak))
+void _hook_param(uint16_t index, uint16_t value)
+{
+  (void)index;
+  (void)value;
 }
 
 /** @} */

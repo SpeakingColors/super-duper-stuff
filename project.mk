@@ -6,7 +6,7 @@ PROJECT = HyperSawX
 
 UCSRC =
 
-UCXXSRC =
+UCXXSRC = hypersawx.cpp
 
 UINCDIR =
 
