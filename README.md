@@ -1,5 +1,7 @@
 # HYPERSAWX 🐈
 
+<img src="assets/icon.svg" width="96" align="right" alt="icon">
+
 A JP-8000 style SuperSaw user oscillator for the **KORG minilogue xd**, free to use.
 
 15 detuned saws, a sub oscillator, analog-style drift and vibrato.
