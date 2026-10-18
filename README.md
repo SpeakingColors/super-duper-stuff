@@ -47,7 +47,7 @@ make GCC_BIN_PATH=/path/to/arm-none-eabi/bin install
 
 - [hypersaw-xd](https://github.com/SpeakingColors/hypersaw-xd): HyperSaw oscillator
 - [sawwiden-xd](https://github.com/SpeakingColors/sawwiden-xd): stereo widener mod FX
-- [MegaSaw-XD](https://github.com/SpeakingColors/MegaSaw-XD): 2 layer SuperSaw (coming)
+- [MegaSaw-XD](https://github.com/SpeakingColors/MegaSaw-XD): 2 layer SuperSaw, up to 11 voices per layer
 
 ## License
 
